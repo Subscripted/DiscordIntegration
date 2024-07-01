@@ -2,6 +2,7 @@ package dev.subscripted;
 
 import dev.subscripted.enums.LogType;
 import dev.subscripted.filter.WordFilter;
+import dev.subscripted.utils.CommandRegistery;
 import dev.subscripted.utils.JsonFile;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -50,7 +51,9 @@ public class Main {
                 .enableCache(CacheFlag.VOICE_STATE).build().awaitReady();
 
         // Hinzufügen des WordFilters als Event-Listener
+        CommandRegistery.registerCommands();
         jda.addEventListener(new WordFilter(LogType.LOG_MEDIUM));
+
     }
 
     /**
