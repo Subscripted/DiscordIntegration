@@ -1,7 +1,10 @@
 package dev.subscripted;
 
+import dev.subscripted.database.XPSqlManager;
 import dev.subscripted.enums.LogType;
 import dev.subscripted.filter.WordFilter;
+import dev.subscripted.level.XPSystem;
+import dev.subscripted.level.XpCommand;
 import dev.subscripted.utils.CommandRegistery;
 import dev.subscripted.utils.JsonFile;
 import lombok.Getter;
@@ -21,6 +24,8 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag;
  */
 public class Main {
 
+    @Getter
+    private static XPSqlManager xpSqlManager;
     // Ein Objekt von JsonFile zum Laden des Tokens aus einer Konfigurationsdatei
     static JsonFile jsonFile = new JsonFile();
 
@@ -41,6 +46,8 @@ public class Main {
     public static void main(String[] args) {
         // Token aus der Konfigurationsdatei laden
         loadToken();
+        xpSqlManager = new XPSqlManager();
+
 
         // Erstellen und Konfigurieren der JDA-Instanz
         jda = JDABuilder.createDefault(getToken())
@@ -53,6 +60,8 @@ public class Main {
         // Hinzufügen des WordFilters als Event-Listener
         CommandRegistery.registerCommands();
         jda.addEventListener(new WordFilter(LogType.LOG_MEDIUM));
+        jda.addEventListener(new XpCommand(xpSqlManager));
+        jda.addEventListener(new XPSystem());
 
     }
 

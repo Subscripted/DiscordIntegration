@@ -2,8 +2,6 @@ package dev.subscripted.level;
 
 import dev.subscripted.Main;
 import dev.subscripted.database.XPSqlManager;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -12,35 +10,49 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class XPSystem extends ListenerAdapter {
+    private XPSqlManager xpSqlManager;
+    public static Map<Integer, Integer> levelXPRequirements;
 
-    final XPSqlManager xpSqlManager;
-    static final Map<Integer, Integer> levelXPRequirements = new HashMap<>();
-    final double XP_MIN = 0.5;
-    final double XP_MAX = 1.5;
+    public XPSystem() {
+        xpSqlManager = Main.getXpSqlManager();
+        levelXPRequirements = new HashMap<>();
 
-
-    // Initialisiere XP-Anforderungen beim Laden der Klasse
-    static {
-        int baseXP = 100;
-        int multiplier = 150; // Wachstumskurs für XP-Anforderungen
-        for (int level = 1; level <= 50; level++) {
-            levelXPRequirements.put(level, baseXP);
-            baseXP = (int) (baseXP * (multiplier / 100.0));
+        int kek = 10;
+        for (int x = 1; x < 51; x++) {
+            levelXPRequirements.put(x, kek);
+            kek = kek + (kek * 101 / 100);
+        }
+        for (Integer m : levelXPRequirements.keySet()) {
+            System.out.println(m + " / " + levelXPRequirements.get(m));
         }
     }
 
-    public XPSystem(XPSqlManager xpSqlManager) {
-        this.xpSqlManager = xpSqlManager;
+    public static int getLevelXP(int xp) {
+        int levelXP = 0;
+        int previousLevelXP = 0;
+        for (Map.Entry<Integer, Integer> entry : levelXPRequirements.entrySet()) {
+            if (entry.getValue() > xp) {
+                levelXP = entry.getValue() - previousLevelXP;
+                break;
+            }
+            previousLevelXP = entry.getValue();
+        }
+        if (levelXP == 0) {
+            levelXP = levelXPRequirements.get(levelXPRequirements.size()) - previousLevelXP;
+        }
+        return levelXP;
     }
+
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot())
+            return;
 
         User user = event.getAuthor();
         String userId = user.getId();
@@ -49,54 +61,57 @@ public class XPSystem extends ListenerAdapter {
         int currentXP = xpSqlManager.getXP(userId);
         int currentLevel = xpSqlManager.getLevel(userId);
 
-        // XP basierend auf der Nachricht berechnen
-        int xpGained = calculateMessageXP(message.getContentRaw());
+        int xpGained = getRandomXP(message.getContentRaw());
         currentXP += xpGained;
 
-        // Bestimme das neue Level
         int newLevel = calculateLevel(currentXP);
-
-        // Überprüfe, ob ein Level-Up stattgefunden hat
+        System.out.println(currentLevel);
         if (newLevel > currentLevel) {
-            sendLevelUpMessage(user, newLevel);
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle("Novibes XP")
+                    .setDescription("<:party:1257440928231325807> - Du bist  auf Level " + newLevel + " aufgestiegen!")
+                    .setColor(Color.MAGENTA)
+                    .setFooter("Novibes XP Feature | Update 2023 © ", Main.getJda().getSelfUser().getEffectiveAvatarUrl());
+            user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessageEmbeds(embedBuilder.build()).queue());
+
             xpSqlManager.setLevel(userId, newLevel);
+            if (currentLevel > 0) {
+                currentXP = 0;
+            }
         }
 
-        // Aktualisiere den XP-Wert in der Datenbank
+        System.out.println(currentXP);
+
         xpSqlManager.setXP(userId, currentXP);
     }
 
-    private int calculateMessageXP(String messageContent) {
-        // Berechne XP basierend auf der Nachricht
-        int wordCount = messageContent.split("\\s+").length;
-        double xp = wordCount * (Math.random() * (XP_MAX - XP_MIN) + XP_MIN);
-        return (int) Math.round(xp);
-    }
-
     private int calculateLevel(int xp) {
-        // Bestimme das Level basierend auf der XP-Anforderung
         int level = 1;
-        for (Map.Entry<Integer, Integer> entry : levelXPRequirements.entrySet()) {
-            if (xp >= entry.getValue()) {
-                level = entry.getKey();
-            } else {
-                break;
+        for (Integer m : levelXPRequirements.keySet()) {
+            if (xp >= levelXPRequirements.get(m)) {
+                level = m;
             }
         }
+
         return level;
     }
 
-    private void sendLevelUpMessage(User user, int newLevel) {
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle("Level Up!")
-                .setDescription("Herzlichen Glückwunsch! Du bist auf Level " + newLevel + " aufgestiegen!")
-                .setColor(Color.MAGENTA)
-                .setFooter("XP-System | Update 2024", Main.getJda().getSelfUser().getEffectiveAvatarUrl());
+    private int getRandomXP(String msg) {
+        double min = 0.5;
+        double max = 1.5;
+        double totalXP = 0;
+        String[] words = msg.split(" ");
+        for (String s : words) {
+            totalXP += Math.random() * (max - min) + min;
+        }
 
-        user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessageEmbeds(embedBuilder.build()).queue());
+        return (int) Math.round(totalXP);
     }
 
     public static int getRequiredXP(int level) {
-        return levelXPRequirements.getOrDefault(level, 0);
+        if (level == 0){
+            return 0;
+        }
+        return levelXPRequirements.get(level);
     }
 }
