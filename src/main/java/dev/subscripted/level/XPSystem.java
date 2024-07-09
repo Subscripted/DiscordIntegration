@@ -2,6 +2,7 @@ package dev.subscripted.level;
 
 import dev.subscripted.Main;
 import dev.subscripted.database.XPSqlManager;
+import dev.subscripted.enums.MessageType;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -10,7 +11,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +72,9 @@ public class XPSystem extends ListenerAdapter {
                     .setDescription("<:party:1257440928231325807> - Du bist  auf Level " + newLevel + " aufgestiegen!")
                     .setColor(Color.MAGENTA)
                     .setFooter("Novibes XP Feature | Update 2023 © ", Main.getJda().getSelfUser().getEffectiveAvatarUrl());
-            user.openPrivateChannel().queue(privateChannel -> privateChannel.sendMessageEmbeds(embedBuilder.build()).queue());
+
+            MessageType.PRIVATE.sendMessageEmbed(user, embedBuilder.build());
+
 
             xpSqlManager.setLevel(userId, newLevel);
             if (currentLevel > 0) {

@@ -10,8 +10,10 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.restaction.MemberAction;
 
 import java.awt.*;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,14 +62,13 @@ public class WordFilter extends ListenerAdapter {
      *
      * @param event Das Ereignis, das die empfangene Nachricht enthält.
      */
-
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         // Überprüfen, ob der Autor der Nachricht null ist
         if (event.getAuthor() == null)
             return;
 
-        // Überprüfen, ob der Mitglied null ist
+        // Überprüfen, ob das Mitglied null ist
         Member member = event.getMember();
         if (member == null)
             return;
@@ -117,8 +118,14 @@ public class WordFilter extends ListenerAdapter {
 
             // Wenn der Log-Kanal vorhanden ist, senden der Embed-Nachricht an den Kanal
             if (channel != null) {
-                MessageType.PUBLIC.sendMessageEmbed(channel, channelem.build());
+                MessageType.PUBLIC.sendMessageEmbed(channel, channelem.build(), null);
             }
+
+            // Timeout des Benutzers für eine bestimmte Dauer (z.B. 10 Minuten)
+            event.getGuild().timeoutFor(member, Duration.ofMinutes(10)).queue(
+                    success -> System.out.println("User " + member.getEffectiveName() + " has been timed out."),
+                    error -> System.err.println("Failed to timeout user " + member.getEffectiveName() + ": " + error.getMessage())
+            );
         }
     }
 }

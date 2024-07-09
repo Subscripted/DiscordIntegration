@@ -16,6 +16,8 @@ public class CommandRegistery {
         Guild guild = Main.getJda().getGuildById("1102188267513843782");
         assert guild != null;
         guild.updateCommands().addCommands(
-                Commands.slash("level", "Zeigt dir dein Level an!").addOption(OptionType.USER, "nutzer", "Nutzer von dem du die XP ansehen willst", true)).queue();
+                Commands.slash("level", "Zeigt dir dein Level an!").addOption(OptionType.USER, "nutzer", "Nutzer von dem du die XP ansehen willst", true),
+                Commands.slash("giveaway", "Startet eine Verlosung").addOption(OptionType.STRING, "preis", "Gib hier den Preis ein.", true).addOption(OptionType.INTEGER, "gewinner", "Gib die Anzahl der Gewinner ein.", true).addOption(OptionType.STRING, "dauer", "Gib die Dauer des Giveaways in Sekunden ein.", true)).queue();
+
     }
 }

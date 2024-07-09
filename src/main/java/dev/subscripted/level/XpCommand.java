@@ -44,6 +44,7 @@ public class XpCommand extends ListenerAdapter {
         if (!event.getName().equals("level")) {
             return;
         }
+        
 
         // Erstellt ein Standard-Embed für die Antwort.
         embedBuilder = new EmbedBuilder();
@@ -153,7 +154,6 @@ public class XpCommand extends ListenerAdapter {
         for (int i = 0; i < stillRequiredXP; i++) {
             stateBar.append("<:xpempty:1257446630140018760>");
         }
-
         return stateBar.toString();
     }
 }
