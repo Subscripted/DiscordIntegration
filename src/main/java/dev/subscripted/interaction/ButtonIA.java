@@ -65,6 +65,7 @@ public class ButtonIA extends ListenerAdapter {
                 break;
 
             case "verify":
+                assert member != null;
                 if (!isVerified(member)) {
                     guild.addRoleToMember(member, verified);
                     MessageType.REPLY.sendMessageEmbed(event, EmbedType.SUCCESSFULL_VERIFIED.getEmbedBuilder().build(), true);
@@ -79,6 +80,6 @@ public class ButtonIA extends ListenerAdapter {
     private static boolean isVerified(Member user) {
         Guild guild = Main.getJda().getGuildById("1102188267513843782");
         Role role = guild.getRoleById("1102191280106246214");
-        return user.getRoles().contains(role);
+        return guild.getMemberById(user.getId()).getRoles().contains(role);
     }
 }

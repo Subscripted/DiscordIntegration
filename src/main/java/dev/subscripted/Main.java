@@ -10,6 +10,7 @@ import dev.subscripted.services.giveaway.GiveawayRunnable;
 import dev.subscripted.interaction.ButtonIA;
 import dev.subscripted.level.XPSystem;
 import dev.subscripted.level.XpCommand;
+import dev.subscripted.services.ticket.AudioService;
 import dev.subscripted.services.verify.VerifyService;
 import dev.subscripted.utils.CommandRegistery;
 import dev.subscripted.utils.JsonFile;
@@ -51,6 +52,7 @@ public class Main {
     @Getter
     private static String token;
 
+
     /**
      * Der Einstiegspunkt des Programms. Initialisiert den Bot und startet ihn.
      *
@@ -88,6 +90,7 @@ public class Main {
         jda.addEventListener(new ButtonIA(giveawayManager, giveawayRunnable));
         jda.addEventListener(new eJoin());
         jda.addEventListener(new VerifyService());
+        jda.addEventListener(new AudioService());
 
 
         startGiveawayRunnable();
