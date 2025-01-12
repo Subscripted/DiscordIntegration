@@ -3,6 +3,7 @@ package dev.subscripted.level;
 import dev.subscripted.Main;
 import dev.subscripted.database.XPSqlManager;
 import dev.subscripted.enums.MessageType;
+import dev.subscripted.utils.SmartConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class XPSystem extends ListenerAdapter {
+    private static SmartConfig c = SmartConfig.load("overloaded.yml");
     private XPSqlManager xpSqlManager;
     public static Map<Integer, Integer> levelXPRequirements;
 
@@ -68,10 +70,10 @@ public class XPSystem extends ListenerAdapter {
         System.out.println(currentLevel);
         if (newLevel > currentLevel) {
             EmbedBuilder embedBuilder = new EmbedBuilder()
-                    .setTitle("Novibes XP")
-                    .setDescription("<:party:1257440928231325807> - Du bist  auf Level " + newLevel + " aufgestiegen!")
+                    .setTitle("Overloaded XP")
+                    .setDescription("<:bottle:1327593752901976094> - Du bist  auf Level " + newLevel + " aufgestiegen!")
                     .setColor(Color.MAGENTA)
-                    .setFooter("Novibes XP Feature | Update 2023 © ", Main.getJda().getSelfUser().getEffectiveAvatarUrl());
+                    .setFooter(c.getString("embed.footer"), Main.getJda().getSelfUser().getEffectiveAvatarUrl());
 
             MessageType.PRIVATE.sendMessageEmbed(user, embedBuilder.build());
 

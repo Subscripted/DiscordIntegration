@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import dev.subscripted.utils.SmartConfig;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -24,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class AudioService extends ListenerAdapter {
+    SmartConfig c = SmartConfig.load("overloaded.yml");
     private final AudioPlayerManager playerManager;
     private final AudioPlayer player;
     private Guild guild;
@@ -59,7 +61,7 @@ public class AudioService extends ListenerAdapter {
 
         this.guild = event.getGuild();
 
-        if (joiningMember != null && !joiningMember.getUser().isBot() && joinedChannel != null && joinedChannel.getId().equals("1102203664820617307")) {
+        if (joiningMember != null && !joiningMember.getUser().isBot() && joinedChannel != null && joinedChannel.getId().equals(c.getString("server.supportWarteraumchannel"))) {
             guild.getAudioManager().openAudioConnection(joinedChannel);
             playAudio(guild, "support.mp3");
             isPlayingSupportTrack = true;

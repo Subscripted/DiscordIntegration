@@ -13,7 +13,10 @@ public class CommandRegistery {
 
     @SneakyThrows
     public static void registerCommands() {
-        Guild guild = Main.getJda().getGuildById("1102188267513843782");
+
+        SmartConfig c = SmartConfig.load("overloaded.yml");
+        Guild guild = Main.getJda().getGuildById(c.getString("server.guildID"));
+        System.out.println(guild);
         assert guild != null;
         guild.updateCommands().addCommands(
                 Commands.slash("level", "Zeigt dir dein Level an!").addOption(OptionType.USER, "nutzer", "Nutzer von dem du die XP ansehen willst", true),

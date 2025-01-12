@@ -143,6 +143,9 @@ public class GiveawayManager {
         if (textChannel == null) {
             return;
         }
+        if (giveaway.getMessageId() == null) {
+            return;
+        }
         textChannel.retrieveMessageById(giveaway.getMessageId()).queue(message -> message.editMessageEmbeds(
                         new EmbedBuilder()
                                 .setTitle("<:event:1260135620420833310> Giveaway <:event:1260135620420833310>")

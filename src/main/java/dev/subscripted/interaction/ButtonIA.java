@@ -6,6 +6,7 @@ import dev.subscripted.enums.MessageType;
 import dev.subscripted.services.giveaway.Giveaway;
 import dev.subscripted.services.giveaway.GiveawayManager;
 import dev.subscripted.services.giveaway.GiveawayRunnable;
+import dev.subscripted.utils.SmartConfig;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -24,6 +25,7 @@ public class ButtonIA extends ListenerAdapter {
 
     final GiveawayManager giveawayManager;
     final GiveawayRunnable runnable;
+    static SmartConfig c = SmartConfig.load("overloaded.yml");
 
     public ButtonIA(GiveawayManager giveawayManager, GiveawayRunnable runnable) {
         this.giveawayManager = giveawayManager;
@@ -33,7 +35,7 @@ public class ButtonIA extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         Guild guild = event.getGuild();
-        Role verified = guild.getRoleById("1102191280106246214");
+        Role verified = guild.getRoleById(c.getString("roles.verified"));
         Member member = event.getMember();
         Button button = event.getButton();
         TextChannel channel = event.getChannel().asTextChannel();
@@ -66,7 +68,7 @@ public class ButtonIA extends ListenerAdapter {
 
             case "verify":
                 assert member != null;
-                if (!isVerified(member)) {
+                if (!isVerified(member, guild, verified)) {
                     guild.addRoleToMember(member, verified);
                     MessageType.REPLY.sendMessageEmbed(event, EmbedType.SUCCESSFULL_VERIFIED.getEmbedBuilder().build(), true);
                 } else {
@@ -77,9 +79,7 @@ public class ButtonIA extends ListenerAdapter {
     }
 
 
-    private static boolean isVerified(Member user) {
-        Guild guild = Main.getJda().getGuildById("1102188267513843782");
-        Role role = guild.getRoleById("1102191280106246214");
+    private static boolean isVerified(Member user, Guild guild, Role role) {
         return guild.getMemberById(user.getId()).getRoles().contains(role);
     }
 }

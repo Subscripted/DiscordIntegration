@@ -1,6 +1,7 @@
 package dev.subscripted.enums;
 
 import dev.subscripted.Main;
+import dev.subscripted.utils.SmartConfig;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -16,31 +17,42 @@ public enum LogType {
     /**
      * Log-Typ für niedrige Priorität (z.B. Debugging-Informationen).
      */
-    LOG_LOW("123456789012345678"),
+    LOG_LOW("admin.logchannel.low"),
 
     /**
      * Log-Typ für mittlere Priorität (z.B. allgemeine Warnungen).
      */
-    LOG_MEDIUM("1257416818809896980"),
+    LOG_MEDIUM("admin.logchannel.medium"),
 
     /**
      * Log-Typ für hohe Priorität (z.B. kritische Fehler).
      */
-    LOG_HIGH("987654321098765432");
+    LOG_HIGH("admin.logchannel.high");
 
     @Getter
     final String channelID;
 
     /**
      * Konstruktor für das `LogType`-Enum.
-     * @param channelID Die ID des Textkanals, der diesem Log-Typ zugeordnet ist.
+     * Liest die Kanal-ID aus der Konfiguration.
+     *
+     * @param configPath Der Pfad in der Konfigurationsdatei, der diesem Log-Typ zugeordnet ist.
      */
-    LogType(String channelID) {
-        this.channelID = channelID;
+    LogType(String configPath) {
+        SmartConfig c = SmartConfig.load("overloaded.yml");
+
+        // Lade die Kanal-ID aus der Konfiguration
+        String loadedChannelID = c.getString(configPath);
+
+        // Fallback auf eine Standard-Kanal-ID, falls die Konfiguration fehlt
+        this.channelID = (loadedChannelID != null && !loadedChannelID.isEmpty())
+                ? loadedChannelID
+                : "default-channel-id"; // Ersetze durch eine sinnvolle Standard-ID
     }
 
     /**
      * Holt den Log-Kanal basierend auf dem Log-Typ.
+     *
      * @param logType Der Log-Typ, für den der Kanal abgerufen werden soll.
      * @return Der Textkanal, der dem Log-Typ entspricht.
      */

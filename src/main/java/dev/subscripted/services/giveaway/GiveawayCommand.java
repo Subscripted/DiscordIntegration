@@ -3,6 +3,8 @@ package dev.subscripted.services.giveaway;
 import dev.subscripted.Main;
 import dev.subscripted.enums.EmbedType;
 import dev.subscripted.enums.MessageType;
+import dev.subscripted.utils.PermissionContainer;
+import dev.subscripted.utils.SmartConfig;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,9 +36,11 @@ public class GiveawayCommand extends ListenerAdapter {
 
         Member member = event.getMember();
         assert member != null;
+        SmartConfig c = SmartConfig.load("overloaded.yml");
+        SmartConfig p = SmartConfig.load("permissions.yml");
+        PermissionContainer container = new PermissionContainer(p);
 
-
-        if (!member.hasPermission(Permission.ADMINISTRATOR)) {
+        if (!container.hasPermission(member, "giveaway")) {
             MessageType.REPLY.sendMessageEmbed(event, EmbedType.NO_PERMISSION.getEmbedBuilder().build(), true);
             return;
         }
@@ -56,7 +60,7 @@ public class GiveawayCommand extends ListenerAdapter {
         int duration = (int) parseDuration(optionMappingDuration.getAsString());
 
         long endTime = (System.currentTimeMillis() / 1000 + duration);
-        event.reply(guild.getRoleById("1203702857472282664").getAsMention()).addEmbeds(
+        event.reply(guild.getRoleById(c.getString("roles.communityRole")).getAsMention()).addEmbeds(
                         new EmbedBuilder()
                                 .setTitle("<:event:1260135620420833310> Giveaway <:event:1260135620420833310>")
                                 .setFooter("Novibes Giveway | Update 2023 ©", Main.getJda().getSelfUser().getEffectiveAvatarUrl())
